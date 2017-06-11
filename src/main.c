@@ -3,8 +3,11 @@
 #include "sensors/gps/nmea.h"
 #include "hal/spi.h"
 #include "hal/sdcard.h"
+#include "hal/pps.h"
 #include "storage/pff.h"
 #include "storage/diskio.h"
+
+#include <stm32f10x.h>
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
@@ -22,6 +25,7 @@ main(int argc, char* argv[])
   spi_init();
   sdcard_init();
   disk_initialize();
+  pps_init();
 
   /* FAT test */
   FATFS fs;
