@@ -34,7 +34,7 @@
  * ***************************************************************************/
 
 #include "board.h"
-#include "misc.h"
+#include "abc_misc.h"
 #include "hal/spi.h"
 
 #include <stm32f10x.h>

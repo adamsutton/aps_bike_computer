@@ -33,7 +33,7 @@
 #define ABC_DRIVERS_STM32_UART_H
 
 #include "board.h"
-#include "misc.h"
+#include "abc_misc.h"
 #include "hal/uart.h"
 
 #include <stm32f10x.h>

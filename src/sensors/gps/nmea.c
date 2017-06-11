@@ -27,7 +27,7 @@
  * ***************************************************************************/
 
 #include "nmea.h"
-#include "misc.h"
+#include "abc_misc.h"
 #include "hal/uart.h"
 #include "diag/Trace.h"
 

@@ -24,7 +24,7 @@
 
 #include "hal/sdcard.h"
 #include "hal/spi.h"
-#include "misc.h"
+#include "abc_misc.h"
 #include "board.h"
 #include "diag/Trace.h"
 
