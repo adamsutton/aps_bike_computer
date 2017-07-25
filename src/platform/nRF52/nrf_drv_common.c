@@ -1,0 +1,1 @@
+../../../vendor/nRF5_SDK/components/drivers_nrf/common/nrf_drv_common.c

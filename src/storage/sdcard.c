@@ -26,7 +26,6 @@
 #include "hal/spi.h"
 #include "abc_misc.h"
 #include "board.h"
-#include "diag/Trace.h"
 
 #include <string.h>
 

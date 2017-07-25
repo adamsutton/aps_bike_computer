@@ -32,12 +32,11 @@
 #include "abc_misc.h"
 #include "hal/pps.h"
 
-#include <stm32f10x.h>
-
 /* ****************************************************************************
  * IRQ Handler
  * ***************************************************************************/
 
+/*
 void EXTI4_IRQHandler ( void );
 
 void
@@ -51,6 +50,7 @@ EXTI4_IRQHandler ( void )
     EXTI_ClearITPendingBit(EXTI_Line4);
   }
 }
+*/
 
 /* ****************************************************************************
  * Public Interface
@@ -59,41 +59,6 @@ EXTI4_IRQHandler ( void )
 void
 pps_init ( void )
 {
-  GPIO_InitTypeDef gi;
-  EXTI_InitTypeDef ei;
-  NVIC_InitTypeDef ni;
-
-  /* Setup GPIO */
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
-  gi.GPIO_Pin   = GPIO_Pin_4;
-  gi.GPIO_Speed = GPIO_Speed_50MHz;
-  gi.GPIO_Mode  = GPIO_Mode_IN_FLOATING;
-  GPIO_Init(GPIOB, &gi);
-
-  /* Setup NVIC */
-  ni.NVIC_IRQChannel                   = EXTI4_IRQn;
-  ni.NVIC_IRQChannelPreemptionPriority = 0x02;
-  ni.NVIC_IRQChannelSubPriority        = 0x02;
-  ni.NVIC_IRQChannelCmd                = ENABLE;
-  NVIC_Init(&ni);
-  NVIC_EnableIRQ(EXTI4_IRQn);
-
-  /* Setup EXTI */
-  ei.EXTI_Mode    = EXTI_Mode_Interrupt;
-  ei.EXTI_Line    = EXTI_Line4;
-  ei.EXTI_Trigger = EXTI_Trigger_Rising;
-  ei.EXTI_LineCmd = ENABLE;
-  GPIO_EXTILineConfig(GPIO_PortSourceGPIOB, GPIO_PinSource4);
-  EXTI_Init(&ei);
-
-  /* TODO: debug */
-#if 0
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
-  gi.GPIO_Pin   = GPIO_Pin_5;
-  gi.GPIO_Speed = GPIO_Speed_2MHz;
-  gi.GPIO_Mode  = GPIO_Mode_Out_PP;
-  GPIO_Init(GPIOA, &gi);
-#endif
 }
 
 

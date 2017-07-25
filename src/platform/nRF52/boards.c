@@ -1,0 +1,1 @@
+../../../vendor/nRF5_SDK/components/boards/boards.c

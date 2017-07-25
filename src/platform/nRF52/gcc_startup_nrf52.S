@@ -1,0 +1,1 @@
+../../../vendor/nRF5_SDK/components/toolchain/gcc/gcc_startup_nrf52.S

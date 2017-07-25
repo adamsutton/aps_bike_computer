@@ -1,0 +1,1 @@
+../../../vendor/nRF5_SDK/components/toolchain/system_nrf52.c

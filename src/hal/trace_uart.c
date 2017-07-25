@@ -23,77 +23,58 @@
  * ***************************************************************************/
 
 /* ****************************************************************************
- * STM32 Drivers - PPS input
+ * HAL - Trace over UART
  * 
- * External interrupt signal from PPS input pin
+ * Implementation to send trace debug via the debug uart
  * ***************************************************************************/
 
 #include "board.h"
 #include "abc_misc.h"
-#include "hal/pps.h"
+#include "hal/trace.h"
+#include "hal/uart.h"
 
-#include <stm32f10x.h>
+#include <stdarg.h>
 
 /* ****************************************************************************
- * IRQ Handler
+ * State
  * ***************************************************************************/
 
-void EXTI4_IRQHandler ( void );
-
-void
-EXTI4_IRQHandler ( void )
-{
-  static bool state = false;
-  if (EXTI_GetITStatus(EXTI_Line4) != RESET) {
-    state = !state;
-    if (state) GPIO_ResetBits(GPIOA, GPIO_Pin_5);
-    else       GPIO_SetBits(GPIOA, GPIO_Pin_5);
-    EXTI_ClearITPendingBit(EXTI_Line4);
-  }
-}
+static uart_s *trace_uart;
 
 /* ****************************************************************************
  * Public Interface
  * ***************************************************************************/
 
 void
-pps_init ( void )
+trace_init ( void )
 {
-  GPIO_InitTypeDef gi;
-  EXTI_InitTypeDef ei;
-  NVIC_InitTypeDef ni;
+  trace_uart = uart_open(ABC_UART_TRACE, 9600);
+}
 
-  /* Setup GPIO */
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
-  gi.GPIO_Pin   = GPIO_Pin_4;
-  gi.GPIO_Speed = GPIO_Speed_50MHz;
-  gi.GPIO_Mode  = GPIO_Mode_IN_FLOATING;
-  GPIO_Init(GPIOB, &gi);
+void
+trace_printf ( const char *fmt, ... )
+{
+  char line[128];
+  va_list va;
+  ssize_t c;
 
-  /* Setup NVIC */
-  ni.NVIC_IRQChannel                   = EXTI4_IRQn;
-  ni.NVIC_IRQChannelPreemptionPriority = 0x02;
-  ni.NVIC_IRQChannelSubPriority        = 0x02;
-  ni.NVIC_IRQChannelCmd                = ENABLE;
-  NVIC_Init(&ni);
-  NVIC_EnableIRQ(EXTI4_IRQn);
+  /* Ignore */
+  if (NULL == trace_uart) return;
 
-  /* Setup EXTI */
-  ei.EXTI_Mode    = EXTI_Mode_Interrupt;
-  ei.EXTI_Line    = EXTI_Line4;
-  ei.EXTI_Trigger = EXTI_Trigger_Rising;
-  ei.EXTI_LineCmd = ENABLE;
-  GPIO_EXTILineConfig(GPIO_PortSourceGPIOB, GPIO_PinSource4);
-  EXTI_Init(&ei);
+  /* Build Line */
+  va_start(va, fmt);
+  c = vsnprintf(line, sizeof(line)-2, fmt, va);
+  va_end(va);
 
-  /* TODO: debug */
-#if 0
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
-  gi.GPIO_Pin   = GPIO_Pin_5;
-  gi.GPIO_Speed = GPIO_Speed_2MHz;
-  gi.GPIO_Mode  = GPIO_Mode_Out_PP;
-  GPIO_Init(GPIOA, &gi);
-#endif
+  /* Invalid */
+  if (c <= 0) return;
+
+  /* Add \n */
+  line[c++] = '\n';
+  line[c]   = '\0';
+
+  /* Send */
+  uart_write(trace_uart, (uint8_t*)line, (size_t)c);
 }
 
 

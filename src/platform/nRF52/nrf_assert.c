@@ -1,0 +1,1 @@
+../../../vendor/nRF5_SDK/components/libraries/util/nrf_assert.c

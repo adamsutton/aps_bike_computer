@@ -1,0 +1,1 @@
+../../../vendor/nRF5_SDK/components/drivers_nrf/uart/nrf_drv_uart.c

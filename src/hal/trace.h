@@ -23,34 +23,29 @@
  * ***************************************************************************/
 
 /* ****************************************************************************
- * Board definitions
+ * HAL - DEBUG interface
+ *
+ * Simple debug output
+ *
  * ***************************************************************************/
 
-#ifndef ABC_BOARD_H
-#define ABC_BOARD_H
+#ifndef ABC_HAL_TRACE_H
+#define ABC_HAL_TRACE_H
+
+#include "types.h"
 
 /*
- * UART definitions
+ * Initialise
  */
-#define ABC_UART_RXBUF_SZ (64)
-#define ABC_UART_TXBUF_SZ (128)
-#define ABC_UART_USART1   (1)
-#define ABC_UART_USART2   (0)
+void trace_init ( void );
 
-#define ABC_UART_GPS      (0)
-#define ABC_UART_TRACE    (0)
 
 /*
- * SPI defintions
+ * Output debug
  */
-#define ABC_SPI_SPI1      (1)
+void trace_printf ( const char *fmt, ... );
 
-/*
- * SDCARD definitions
- */
-#define ABC_SDCARD_NUM    (1)
-
-#endif /* ABC_BOARD_H */
+#endif /* ABC_HAL_TRACE_H */
 
 /* ****************************************************************************
  * Editor Configuration

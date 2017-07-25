@@ -29,7 +29,7 @@
 #include "nmea.h"
 #include "abc_misc.h"
 #include "hal/uart.h"
-#include "diag/Trace.h"
+#include "hal/trace.h"
 
 #include <string.h>
 #include <stdlib.h>
@@ -152,8 +152,7 @@ nmea_parse ( const char *line )
 
     char tms[32];
     strftime(tms, sizeof(tms), "%Y-%m-%d %H:%M:%S", &tm);
-    trace_printf("%s : lat %0.6f lon %0.6f\n", tms, lat, lon);
-
+    trace_printf("nmea: time %s lat %0.6f lon %0.6f\n", tms, lat, lon);
   }
 }
 
