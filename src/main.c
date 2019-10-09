@@ -8,6 +8,9 @@
 #include "storage/pff.h"
 #include "storage/diskio.h"
 
+#include <stdio.h>
+#include <string.h>
+
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #pragma GCC diagnostic ignored "-Wmissing-declarations"
@@ -16,8 +19,12 @@
 int
 main(int argc, char* argv[])
 {
-  char line[128];
+  char line[128], path[32];
   int n = 0;
+  bool open = false;
+  time_t now;
+  double lat, lon;
+  struct tm tm;
 
   /* Setup */
   uart_init();
@@ -26,45 +33,43 @@ main(int argc, char* argv[])
   sdcard_init();
   disk_initialize();
   pps_init();
+  trace_printf("abc - begin\n");
 
-#if 0
-  /* FAT test */
+  /* Mount the disk */
   FATFS fs;
-  DIR d;
-  FILINFO fno;
+  if (FR_OK != pf_mount(&fs)) return 1;
 
-  if (0 != pf_mount(&fs)) {
-    trace_printf("failed to mount disk\n");
-    return 1;
-  }
-
-  if (0 == pf_opendir(&d, "/")) {
-    trace_printf("ls /\n");
-    while (0 == pf_readdir (&d, &fno) && (fno.fname[0] != '\0')) {
-      trace_printf("  %20s [%8d B]\n", fno.fname, fno.fsize);
-    }
-
-  } else {
-    trace_printf("failed to open dir\n");
-    return 1;
-  }
-#endif
-
-  /* UART test */
+  /* Open the GPS UART */
   uart_s *u = uart_open(ABC_UART_GPS, 9600);
+  
+  /* Read data */
   while (1) {
-    trace_printf("run\n");
     if (1 != uart_read(u, (uint8_t*)(line + n), 1)) continue;
     if (line[n] == '\r') continue;
     if (line[n] == '\n') {
       line[n] = '\0';
       n       = 0;
-      nmea_parse(line);
+
+      /* Data */
+      if (nmea_gprmc(line, &tm, &lat, &lon)) {
+        if (!open) {
+          open = true;
+          now  = mktime(&tm);
+          snprintf(path, sizeof(path), "/%ld.track", now);
+          if (FR_OK != pf_open(path)) return 1;
+        }
+
+        /* Write line to file */
+        UINT c;
+        snprintf(line, sizeof(line),
+                 "{ \"time\" : %ld, \"latitude\" : %0.6f, \"longitude\" : %0.6f }\n",
+                 now, lat, lon);
+        pf_write(line, strlen(line), &c);
+      }
     } else {
       ++n;
     }
   }
-
 }
 
 #pragma GCC diagnostic pop

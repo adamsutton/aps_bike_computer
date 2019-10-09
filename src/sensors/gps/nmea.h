@@ -29,7 +29,12 @@
 #ifndef ABC_NMEA_H
 #define ABC_NMEA_H
 
+#include <time.h>
+#include <stdbool.h>
+
 void nmea_parse ( const char *line );
+
+bool nmea_gprmc ( const char *line, struct tm *tm, double *lat, double *lon );
 
 #endif /* ABC_NMEA_H */
 

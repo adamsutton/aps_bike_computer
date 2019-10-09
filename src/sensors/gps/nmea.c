@@ -99,14 +99,14 @@ parse_date ( const char *l, struct tm *tm )
 /*
  * Parse line
  */
-void
-nmea_parse ( const char *line )
+bool
+nmea_gprmc ( const char *line, struct tm *tm, double *lat, double *lon )
 {
   uint8_t csum1, csum2;
   const char *l;
 
   /* Invalid start */
-  if ('$' != *line) return;
+  if ('$' != *line) return false;
   l = line + 1;
 
   /* Calc checksum */
@@ -115,7 +115,7 @@ nmea_parse ( const char *line )
     csum1 ^= (uint8_t)*l;
     ++l;
   }
-  if ('\0' == *l) return;
+  if ('\0' == *l) return false;
 
   /* Check */
   csum2 = (uint8_t)((nibble(l[1]) << 4) + nibble(l[2]));
@@ -123,37 +123,38 @@ nmea_parse ( const char *line )
 
   /* Process */
   if (NULL != strstr(line, "$GPRMC")) {
-    struct tm tm = { 0 };
-    double   lat, lon;
 
     /* Time */
-    if (!parse_time(line + 7, &tm)) return;
+    if (!parse_time(line + 7, tm)) return false;
 
     /* Valid? */
-    if (!next_element(line+7, &l))  return;
-    if ('A' != *l) return;
+    if (!next_element(line+7, &l))  return false;
+    if ('A' != *l) return false;
 
     /* Latitude */
-    if (!parse_pos(l + 2, &lat))    return;
-    if (!next_element(l + 2, &l))   return;
-    if ('S' == *l) lat = -lat;
+    if (!parse_pos(l + 2, lat))    return false;
+    if (!next_element(l + 2, &l))   return false;
+    if ('S' == *l) *lat *= -1;
 
     /* Longitude */
-    if (!parse_pos(l + 2, &lon))    return;
-    if (!next_element(l + 2, &l))   return;
-    if ('W' == *l) lon = -lon;
+    if (!parse_pos(l + 2, lon))    return false;
+    if (!next_element(l + 2, &l))   return false;
+    if ('W' == *l) *lon *= -1;
 
     /* Skip next two */
-    if (!next_element(l + 2, &l))   return;
-    if (!next_element(l + 0, &l))   return;
+    if (!next_element(l + 2, &l))   return false;
+    if (!next_element(l + 0, &l))   return false;
 
     /* Date */
-    if (!parse_date(l, &tm))        return;
+    if (!parse_date(l, tm))        return false;
 
     char tms[32];
-    strftime(tms, sizeof(tms), "%Y-%m-%d %H:%M:%S", &tm);
-    trace_printf("nmea: time %s lat %0.6f lon %0.6f\n", tms, lat, lon);
+    strftime(tms, sizeof(tms), "%Y-%m-%d %H:%M:%S", tm);
+    trace_printf("nmea: time %s lat %0.6f lon %0.6f\n", tms, *lat, *lon);
+    return true;
   }
+
+  return false;
 }
 
 

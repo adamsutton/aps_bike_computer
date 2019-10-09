@@ -53,3 +53,4 @@ dkms.conf
 /Debug/
 /Debug nRF52/
 /Debug_nRF52/
+/Debug_STM32/
