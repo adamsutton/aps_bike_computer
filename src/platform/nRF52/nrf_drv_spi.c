@@ -1,0 +1,1 @@
+../../../vendor/nRF5_SDK/components/drivers_nrf/spi_master/nrf_drv_spi.c
